@@ -187,7 +187,7 @@ def run():
 
     # Configure PDF loading menu
     with st.sidebar:
-        st.write("GitHub-Repo: link")
+        st.write("GitHub-Repo: https://github.com/nikmusi/chatbot_niko.git")
         st.write("Workflow of the chatbot:")
         dia = Image.open("data/diagrams/structure.png")
         st.image(dia)

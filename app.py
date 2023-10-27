@@ -175,7 +175,7 @@ def run():
     with col2:
         st.header("Chat with me!")
         st.write(
-            "This is a simple bot to ask some questionsabout me. \
+            "This is a simple bot to ask some questions about me. \
                         The answers will be provided based on my: \
                         \n- CV \
                         \n- working reference given by the fka GmbH \

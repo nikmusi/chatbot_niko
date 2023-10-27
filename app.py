@@ -11,7 +11,7 @@ from langchain.chat_models import ChatOpenAI
 from langchain.embeddings import OpenAIEmbeddings
 from langchain.vectorstores.faiss import FAISS
 
-from htmTemplates import css, bot_template, user_template
+from htmTemplates import css, user_template
 
 
 def load_pdf_text(pdf_docs):
@@ -88,6 +88,7 @@ def create_conversation_chain(vectorstore):
     conversation_chain = ConversationalRetrievalChain.from_llm(
         llm=llm, retriever=vectorstore.as_retriever(), memory=memory
     )
+    
     return conversation_chain
 
 
@@ -104,10 +105,10 @@ def query_user_question(question):
     for i, message in enumerate(st.session_state.chat_history):
         if i % 2 == 0:
             # load question img to streamlit (as bytes, because local files are unreachable)
-            file_ = open("./data/images/question.png", "rb")
-            contents = file_.read()
+            file = open("./data/images/question.png", "rb")
+            contents = file.read()
             data_url = base64.b64encode(contents).decode("utf-8")
-            file_.close()
+            file.close()
             user_temp = user_template.replace("{{MSG}}", message.content)
             user_temp = user_temp.replace(
                 "{{IMG}}", f"<img src='data:image/gif;base64,{data_url}' alt='cat gif'>"
@@ -116,11 +117,11 @@ def query_user_question(question):
             st.write(user_temp, unsafe_allow_html=True)
         else:
             # load bot img to streamlit
-            file_ = open("./data/images/niko.png", "rb")
-            contents = file_.read()
+            file = open("./data/images/bot.png", "rb")
+            contents = file.read()
             data_url = base64.b64encode(contents).decode("utf-8")
-            file_.close()
-            bot_temp = bot_template.replace("{{MSG}}", message.content)
+            file.close()
+            bot_temp = user_template.replace("{{MSG}}", message.content)
             bot_temp = bot_temp.replace(
                 "{{IMG}}", f"<img src='data:image/gif;base64,{data_url}' alt='cat gif'>"
             )
@@ -158,10 +159,11 @@ def run():
     # Add css to streamlit
     st.write(css, unsafe_allow_html=True)
 
-    # Initialize session state variables
-    if "conversation" not in st.session_state:
-        st.session_state.conversation = None#
-        setup_database()
+    with st.spinner("Loading Chatbot (this may take a few seconds)"):
+        # Initialize session state variables
+        if "conversation" not in st.session_state:
+            st.session_state.conversation = None#
+            setup_database()
 
     # Configure the simple prototype GUI
     col1, col2 = st.columns([0.27, 0.73])
@@ -173,7 +175,7 @@ def run():
     with col2:
         st.header("Chat with me!")
         st.write(
-            "This is a simple bot to ask me some questions. \
+            "This is a simple bot to ask some questionsabout me. \
                         The answers will be provided based on my: \
                         \n- CV \
                         \n- working reference given by the fka GmbH \
@@ -181,9 +183,11 @@ def run():
         st.write("Feel free to use your prefered language!")          
         
     user_question = st.text_input("Ask a question about me!", 
-                                  placeholder="Was Niko any good?")
-    if user_question:
-        query_user_question(user_question)
+                                  placeholder="Was Niko any good during his employments?")
+    
+    with st.spinner("processing your question (may take a few seconds)"):
+        if user_question:
+            query_user_question(user_question)
 
     # Configure PDF loading menu
     with st.sidebar:
